@@ -1,0 +1,40 @@
+services:
+  neon-neo4j:
+    image: neo4j:latest
+    container_name: neo4j-db-10
+    restart: always
+    environment:
+      - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
+      - RETRIES=3
+      - NEO4J_LANGUAGE=${NEO4J_LANGUAGE}
+    ports:
+      - "8090:7474"
+      - "7687:7687"
+      - "6508:2000"
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - majo-red 
+
+  backend:
+    build: ./backend
+    container_name: express_backend
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${EXPRESS_PORT}:3000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - neon-neo4j
+    networks:
+      - majo-red 
+   
+volumes:
+  neo4j_data:
+
+networks:
+  majo-red: 
+    driver: bridge
+  
